@@ -1,6 +1,5 @@
-import {useState} from 'react';
 import type {ReactNode} from 'react';
-import {Image,ArrowRight,ExternalLink} from 'lucide-react';
+import {ExternalLink} from 'lucide-react';
 
 const collection = {
  peak:{file:'This-Is-Fine',source:'This-Is-Fine',name:'This Is Fine',lines:[
@@ -22,15 +21,13 @@ const collection = {
 } as const;
 
 export function TopicMeme({id,children}:{id:string;children:ReactNode}){
- const [show,setShow]=useState(false);
  const meme=collection[id as keyof typeof collection];
  const embedded=['pue-example','base-14','benchmark'].includes(id);
  if(!meme)return <>{children}</>;
- return <div className="topic-meme">
- <button type="button" className="meme-toggle" aria-expanded={show} aria-controls={'meme-'+id} onClick={()=>setShow(v=>!v)}>{show?<ArrowRight size={22}/>:<Image size={22}/>} {show?'برگشت به اسلاید':'نمایش میم'}</button>
- <div hidden={show}>{children}</div>
- <div className={'topic-meme-panel meme-for-'+id} id={'meme-'+id} hidden={!show}>
-  <div className="meme-dialogue"><dl>{meme.lines.map(([speaker,line])=><div key={speaker}><dt>{speaker}</dt><dd>{line}</dd></div>)}</dl><p>{meme.point}</p></div>
+ return <div className={'topic-meme topic-'+id}>
+ <div className="topic-meme-content">{children}</div>
+ <div className={'topic-meme-panel meme-for-'+id}>
+  <div className={embedded?"meme-dialogue visually-hidden":"meme-dialogue"}><dl>{meme.lines.map(([speaker,line])=><div key={speaker}><dt>{speaker}</dt><dd>{line}</dd></div>)}</dl><p>{meme.point}</p></div>
   <figure><div className="caption-template"><img loading="lazy" src={'/images/memes/'+meme.file+'.jpg'} alt={meme.name}/>{embedded&&<div aria-hidden="true" className="template-captions">{meme.lines.map(([,line],i)=><span key={i} className={'template-line line-'+i}>{line}</span>)}</div>}</div><figcaption><a href={'https://imgflip.com/memetemplate/'+meme.source} target="_blank" rel="noreferrer" dir="ltr">{meme.name} <ExternalLink size={13}/></a></figcaption></figure>
  </div></div>;
 }

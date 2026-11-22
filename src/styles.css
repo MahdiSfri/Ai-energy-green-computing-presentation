@@ -39,15 +39,20 @@ main{position:fixed;inset:0}.topbar{position:absolute;inset:0 0 auto;height:62px
 .cover .author{display:flex;flex-wrap:wrap;column-gap:32px;row-gap:8px}
 .cover .author b+b{border-inline-start:1px solid #658677;padding-inline-start:32px}
 .slide-meta{justify-content:flex-end}
-.topic-meme{position:relative;padding-top:30px}
-.meme-toggle{position:absolute;top:-21px;left:0;z-index:1;display:inline-flex;align-items:center;gap:9px;color:#184b36;background:#e0ecda;border:1px solid #97b39e;border-radius:8px;font:700 20px Vazirmatn,sans-serif;padding:7px 15px}
-.dark .meme-toggle{background:#d7f394;color:#172d24;border-color:#d7f394}
-.topic-meme-panel:not([hidden]){display:grid;grid-template-columns:1fr minmax(360px,620px);gap:55px;align-items:center;min-height:500px}
-.topic-meme-panel figure{text-align:center;margin:0}
-.topic-meme-panel img{display:block;max-width:100%;max-height:490px;width:auto;height:auto;margin:auto;border-radius:8px}
+ .topic-meme{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:38px;align-items:center;min-height:550px}
+.topic-meme-content,.topic-meme-panel{min-width:0}
+.topic-meme-panel{display:flex;flex-direction:column;align-items:center;gap:14px}
+.topic-meme-panel figure{text-align:center;margin:0;max-width:100%}
+.topic-meme-panel img{display:block;max-width:100%;max-height:475px;width:auto;height:auto;margin:auto;border-radius:8px}
 .topic-meme-panel figcaption{font-size:16px;margin-top:8px}.topic-meme-panel figcaption a{display:inline-flex;align-items:center;gap:7px}
-.meme-dialogue dl>div{display:grid;gap:4px;padding:13px 0;border-bottom:1px solid #96aa98}.meme-dialogue dt{font-size:21px;font-weight:750;color:#2b7054}.dark .meme-dialogue dt{color:#d7f394}.meme-dialogue dd{font-size:30px;font-weight:700;line-height:1.57}.meme-dialogue p{font-size:22px;line-height:1.55;margin-top:18px}
-@media print{.meme-toggle,.topic-meme-panel{display:none!important}.topic-meme>[hidden]:not(.topic-meme-panel){display:block!important}}
+.meme-dialogue{order:2;width:100%}.meme-dialogue dl>div{display:grid;grid-template-columns:155px 1fr;gap:11px;padding:7px 0;border-bottom:1px solid #96aa98}.meme-dialogue dt{font-size:19px;font-weight:750;color:#2b7054}.meme-dialogue dd{font-size:22px;font-weight:700;line-height:1.5}.meme-dialogue p{font-size:19px;line-height:1.5;margin-top:9px}
+.visually-hidden{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.topic-meme .rows>div{grid-template-columns:205px 1fr;gap:17px;padding:17px 0}.topic-meme .rows dt,.topic-meme .rows dd{font-size:25px}
+.topic-meme .chart-layout{grid-template-columns:210px 1fr;gap:15px}.topic-meme .chart-info{padding:8px 12px}.topic-meme .hero-number{font-size:74px}.topic-meme .chart-info p{font-size:22px}.topic-meme .chart-info small{font-size:17px}
+.topic-meme .graph{padding-left:54px}.topic-meme .plot{height:315px}.topic-meme .bar span,.topic-meme .bar b{font-size:20px}
+.topic-meme .power-plots{gap:15px}.topic-meme .metrics{gap:15px}.topic-meme .metrics b{font-size:55px}.topic-meme .metrics span{font-size:21px}.topic-meme .example-takeaway{font-size:23px}
+.topic-meme .cases{grid-template-columns:1fr;gap:16px;min-height:0}.topic-meme .cases figure{width:64%;margin:auto}.topic-meme .cases .hero-number{font-size:62px;margin:0}.topic-meme .cases h2{font-size:28px;margin-bottom:4px}.topic-meme .cases .case-limit{font-size:21px;margin-top:7px;padding-top:6px}.topic-meme .cases .eyebrow{font-size:19px;margin:6px 0}
+.closing-repo{display:grid;grid-template-columns:1fr 390px;align-items:center;gap:65px;min-height:550px}.closing-repo p{font-size:35px;line-height:1.7}.repo-link{font:24px/1.65 JetBrains,monospace;color:#d7f394;display:block;text-align:left;overflow-wrap:anywhere;margin-top:24px;text-decoration:underline}.repo-qr{display:flex;justify-content:center}.repo-qr img{display:block;width:360px;height:360px;background:#fff;border-radius:8px;image-rendering:pixelated}
 .caption-template{position:relative;margin:auto;width:fit-content;max-width:100%}
 .template-captions{position:absolute;inset:0;pointer-events:none}
 .template-line{position:absolute;display:grid;place-items:center;text-align:center;color:#13291f;font:800 16px/1.35 Vazirmatn,sans-serif;padding:3px}
