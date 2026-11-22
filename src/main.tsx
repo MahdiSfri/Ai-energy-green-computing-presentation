@@ -6,6 +6,7 @@ import Notes from 'reveal.js/plugin/notes';
 import {ArrowLeft,ArrowRight,BookOpen,Grid2X2,Maximize,NotebookPen,ExternalLink,X,Zap} from 'lucide-react';
 import baseDeck from './deck.json';
 import {makeDeck} from './expansion';
+import {TopicMeme} from './TopicMeme';
 import {PowerExample,PueExample,CarbonExample} from './WorkedExamples';
 import {speakerLayoutCss} from './presenter-layout';
 import 'reveal.js/reveal.css';
@@ -68,7 +69,7 @@ function SpeakerText({i}:{i:number}){const s=deck[i];return <div className="pres
 function App(){
  const root=useRef<HTMLDivElement>(null), api=useRef<RevealApi|null>(null); const [i,setI]=useState(0),[notes,setNotes]=useState(false),[ready,setReady]=useState(false),[error,setError]=useState(false);
  const noteRef=useRef<HTMLDivElement>(null);
- useEffect(()=>{if(!root.current)return;const r=new Reveal(root.current,{width:1600,height:900,margin:.04,center:false,embedded:true,rtl:true,hash:true,hashOneBasedIndex:true,controls:false,progress:false,transition:'fade',view:print?'print':null,pdfSeparateFragments:false,pdfMaxPagesPerSlide:1,plugins:receiver?[]:[Notes],keyboard:{78:()=>setNotes(v=>!v),71:()=>r.toggleOverview()},keyboardCondition:e=>!((e.target as Element)?.closest('input,select,textarea'))});api.current=r;const sync=()=>setI(r.getIndices().h);r.on('slidechanged',sync);let live=true;r.initialize().then(async()=>{await document.fonts.ready;if(live){r.layout();sync();setReady(true)}}).catch(()=>setError(true));return()=>{live=false;r.destroy();api.current=null};},[]);
+ useEffect(()=>{if(!root.current)return;const r=new Reveal(root.current,{width:1600,height:900,margin:.04,center:false,embedded:true,rtl:true,hash:true,hashOneBasedIndex:true,controls:false,progress:false,transition:'fade',view:print?'print':null,pdfSeparateFragments:false,pdfMaxPagesPerSlide:1,plugins:receiver?[]:[Notes],keyboard:{78:()=>setNotes(v=>!v),71:()=>r.toggleOverview()},keyboardCondition:e=>!((e.target as Element)?.closest('input,select,textarea'))&&!(e.key===' '&&(e.target as Element)?.closest('button,a'))});api.current=r;const sync=()=>setI(r.getIndices().h);r.on('slidechanged',sync);let live=true;r.initialize().then(async()=>{await document.fonts.ready;if(live){r.layout();sync();setReady(true)}}).catch(()=>setError(true));return()=>{live=false;r.destroy();api.current=null};},[]);
  useEffect(()=>{const id=requestAnimationFrame(()=>api.current?.layout());return()=>cancelAnimationFrame(id)},[notes]);
  useEffect(()=>{noteRef.current?.scrollTo(0,0)},[i]);
  return <main className={(notes?'with-notes ':'')+(print?'print-mode ':'')+(receiver?'receiver':'')}>
@@ -76,7 +77,7 @@ function App(){
  <div className="stage"><div className="reveal" ref={root}><div className="slides">{deck.map((s,j)=>{
  const dark=[0,14,15,16,17].includes(s.original);
  return <section className={'deck-slide '+(dark?'dark':'light')} key={s.id} data-background-color={dark?'#102e28':'#f3f3e9'} data-timing={s.sec}><div className="frame" dir="rtl">
- {j===0?<div className="cover"><h1>{s.title}<br/><em>و راهکارهای محاسبات سبز</em></h1><p className="english" dir="ltr">Energy Consumption of Artificial Intelligence<br/>and Green Computing Solutions</p><div className="author">{(s.rows as string[]).slice(2).map(name=><b key={name}>{name}</b>)}</div><div className="cover-mark" aria-hidden="true"><Zap size={265} strokeWidth={.9}/><span dir="ltr">kWh</span></div></div>:<><h1>{s.title}</h1><div className="body"><Content i={j}/></div><div className="slide-meta">{s.src.length>0&&<a href={s.src[0]} target="_blank" rel="noreferrer">منبع ↗</a>}</div></>}
+ {j===0?<div className="cover"><h1>{s.title}<br/><em>و راهکارهای محاسبات سبز</em></h1><p className="english" dir="ltr">Energy Consumption of Artificial Intelligence<br/>and Green Computing Solutions</p><div className="author">{(s.rows as string[]).slice(2).map(name=><b key={name}>{name}</b>)}</div><div className="cover-mark" aria-hidden="true"><Zap size={265} strokeWidth={.9}/><span dir="ltr">kWh</span></div></div>:<><h1>{s.title}</h1><div className="body"><TopicMeme id={s.id}><Content i={j}/></TopicMeme></div><div className="slide-meta">{s.src.length>0&&<a href={s.src[0]} target="_blank" rel="noreferrer">منبع ↗</a>}</div></>}
  </div><aside className="notes"><style>{`@font-face{font-family:Vazirmatn;src:url('${location.origin}/fonts/Vazirmatn-Variable.woff2') format('woff2');font-weight:100 900}`+speakerLayoutCss}</style><SpeakerText i={j}/></aside></section>
  })}</div></div>{!ready&&!print&&<div className="loader">{error?'بارگذاری انجام نشد؛ صفحه را تازه کن.':'در حال آماده‌سازی اسلایدها…'}</div>}</div>
  {notes&&!print&&!receiver&&<aside className="note-panel" ref={noteRef}><button title="بستن یادداشت" aria-label="بستن یادداشت" onClick={()=>setNotes(false)}><X size={22}/></button><p className="eyebrow">یادداشت ارائه‌دهنده · اسلاید {fa(i+1)}</p><SpeakerText i={i}/></aside>}

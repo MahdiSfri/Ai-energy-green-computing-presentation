@@ -39,3 +39,23 @@ main{position:fixed;inset:0}.topbar{position:absolute;inset:0 0 auto;height:62px
 .cover .author{display:flex;flex-wrap:wrap;column-gap:32px;row-gap:8px}
 .cover .author b+b{border-inline-start:1px solid #658677;padding-inline-start:32px}
 .slide-meta{justify-content:flex-end}
+.topic-meme{position:relative;padding-top:30px}
+.meme-toggle{position:absolute;top:-21px;left:0;z-index:1;display:inline-flex;align-items:center;gap:9px;color:#184b36;background:#e0ecda;border:1px solid #97b39e;border-radius:8px;font:700 20px Vazirmatn,sans-serif;padding:7px 15px}
+.dark .meme-toggle{background:#d7f394;color:#172d24;border-color:#d7f394}
+.topic-meme-panel:not([hidden]){display:grid;grid-template-columns:1fr minmax(360px,620px);gap:55px;align-items:center;min-height:500px}
+.topic-meme-panel figure{text-align:center;margin:0}
+.topic-meme-panel img{display:block;max-width:100%;max-height:490px;width:auto;height:auto;margin:auto;border-radius:8px}
+.topic-meme-panel figcaption{font-size:16px;margin-top:8px}.topic-meme-panel figcaption a{display:inline-flex;align-items:center;gap:7px}
+.meme-dialogue dl>div{display:grid;gap:4px;padding:13px 0;border-bottom:1px solid #96aa98}.meme-dialogue dt{font-size:21px;font-weight:750;color:#2b7054}.dark .meme-dialogue dt{color:#d7f394}.meme-dialogue dd{font-size:30px;font-weight:700;line-height:1.57}.meme-dialogue p{font-size:22px;line-height:1.55;margin-top:18px}
+@media print{.meme-toggle,.topic-meme-panel{display:none!important}.topic-meme>[hidden]:not(.topic-meme-panel){display:block!important}}
+.caption-template{position:relative;margin:auto;width:fit-content;max-width:100%}
+.template-captions{position:absolute;inset:0;pointer-events:none}
+.template-line{position:absolute;display:grid;place-items:center;text-align:center;color:#13291f;font:800 16px/1.35 Vazirmatn,sans-serif;padding:3px}
+.meme-for-pue-example .caption-template{width:620px}
+.meme-for-pue-example .template-line{width:20%;height:39%;left:28%;top:6%}
+.meme-for-pue-example .line-1,.meme-for-pue-example .line-3{left:78%}.meme-for-pue-example .line-2,.meme-for-pue-example .line-3{top:54%}
+.meme-for-benchmark .caption-template{width:340px}
+.meme-for-benchmark .template-line{width:49%;height:25%;left:0;font-size:14px;padding:6px}.meme-for-benchmark .line-0{top:0}.meme-for-benchmark .line-1{top:25%}.meme-for-benchmark .line-2{top:50%}.meme-for-benchmark .line-3{top:75%}
+.meme-for-base-14 .caption-template{width:440px}
+.meme-for-base-14 .template-line{top:2%;width:43%;height:17%;font-size:15px}.meme-for-base-14 .line-0{left:3%}.meme-for-base-14 .line-1{right:2%}
+.caption-template>img{width:100%}
