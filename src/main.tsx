@@ -2,19 +2,21 @@ import {useEffect,useRef,useState} from 'react';
 import {createRoot} from 'react-dom/client';
 import Reveal from 'reveal.js';
 import type {RevealApi} from 'reveal.js';
-import Notes from 'reveal.js/plugin/notes';
 import {ArrowLeft,ArrowRight,BookOpen,Grid2X2,Maximize,NotebookPen,ExternalLink,X,Zap} from 'lucide-react';
 import baseDeck from './deck.json';
 import {makeDeck} from './expansion';
 import {ClosingLink,repository} from './ClosingLink';
 import {PowerExample,PueExample,CarbonExample} from './WorkedExamples';
-import {speakerLayoutCss} from './presenter-layout';
+import {SpeakerWindow,receiveSpeaker,sendSpeaker,speakerUrl} from './speaker-window';
+import {PresenterTerms} from './PresenterTerms';
+import {presenterScripts} from './presenter-script';
+import {presenterGuides} from './presenter-guide';
 import 'reveal.js/reveal.css';
 import './styles.css';
 
 const fa=(v:number)=>v.toLocaleString('fa-IR',{maximumFractionDigits:2});
 const short=new URLSearchParams(location.search).get('route')==='quick';
-const deck=[...makeDeck(baseDeck,short),{id:'github',title:'لینک و فایل‌های ارائه',rows:[],src:[repository],sec:0,note:'به مخاطب فرصت بده تا QR را اسکن کند یا لینک مخزن را باز کند.',mode:'github',original:-1,section:3,added:false}];
+const deck=[...makeDeck(baseDeck,short),{id:'github',title:'گیت‌هاب و کد QR ارائه',rows:[],src:[repository],sec:0,note:'به مخاطب فرصت بده تا QR را اسکن کند یا لینک مخزن را باز کند.',mode:'github',original:-1,section:3,added:false}];
 const sourcesIndex=deck.findIndex(s=>s.mode==='sources');
 const total=deck.length;
 function switchRoute(quick:boolean){
@@ -25,6 +27,7 @@ function switchRoute(quick:boolean){
 }
 const print=new URLSearchParams(location.search).has('print-pdf');
 const receiver=new URLSearchParams(location.search).has('receiver');
+const speaker=new URLSearchParams(location.search).has('speaker');
 const assets='/images/';
 const observations=[{year:2024,v:415,kind:'برآورد',detail:'حدود ۱٫۵٪ از برق مصرفی جهان.'},{year:2025,v:485,kind:'برآورد',detail:'حدود ۱۷٪ رشد نسبت به ۲۰۲۴.'},{year:2030,v:950,kind:'پیش‌بینی',detail:'حدود ۳٪ از تقاضای جهانی برق در پیش‌بینی مرکزی.'}];
 function EnergyChart(){
@@ -58,22 +61,62 @@ function Content({i}:{i:number}){
  }
  return <Rows rows={rows}/>;
 }
-function SpeakerText({i}:{i:number}){const s=deck[i];return <div className="presenter-script" lang="fa" dir="rtl" style={{fontFamily:'Vazirmatn, Tahoma, sans-serif',fontSize:24,lineHeight:1.9}}><h3>{s.title}</h3><p>{s.sec?fa(s.sec)+' ثانیه · ':''}{s.note}</p>{s.src.length>0&&<p style={{fontSize:16}}>منابع: {s.src.map((v,j)=><a key={v} href={v} target="_blank" rel="noreferrer">[{fa(j+1)}] </a>)}</p>}</div>}
+function SpeakerText({i}:{i:number}){
+ const s=deck[i], script=presenterScripts[s.id], guide=presenterGuides[s.id];
+ return <div className="presenter-script" lang="fa" dir="rtl" style={{fontFamily:'Vazirmatn, Tahoma, sans-serif',fontSize:24,lineHeight:1.9}}>
+  <h3>{s.title}</h3>
+  {s.sec>0&&<span style={{fontSize:16}}>زمان پیشنهادی: {fa(s.sec)} ثانیه</span>}
+  {guide&&<section style={{margin:'14px 0 24px',padding:'8px 16px',borderInlineStart:'3px solid currentColor'}}>
+   <h4 style={{fontSize:22,margin:'0 0 8px'}}>راهنمای سخنران</h4>
+   <p style={{margin:'0 0 8px',lineHeight:1.65}}><b>شروع: </b>{guide[0]}</p>
+   <p style={{margin:0,lineHeight:1.65}}><b>هنگام ارائه: </b>{guide[1]}</p>
+  </section>}
+  {script&&<section style={{marginTop:14}}>
+   <h4 style={{fontSize:22,margin:'0 0 8px'}}>متن پیشنهادی برای ارائه</h4>
+   <p style={{margin:0,lineHeight:1.9}}>{script}</p>
+  </section>}
+  <section style={{marginTop:24,paddingTop:16,borderTop:'1px solid currentColor'}}>
+   <h4 style={{fontSize:22,margin:'0 0 8px'}}>یادداشت‌های قبلی</h4>
+   <p style={{margin:0,lineHeight:1.9}}>{s.note}</p>
+  </section>
+  <PresenterTerms slide={s}/>
+  {s.src.length>0&&<p style={{fontSize:16}}>منابع: {s.src.map((v,j)=><a key={v} href={v} target="_blank" rel="noreferrer">[{fa(j+1)}] </a>)}</p>}
+ </div>
+}
 function App(){
  const root=useRef<HTMLDivElement>(null), api=useRef<RevealApi|null>(null); const [i,setI]=useState(0),[notes,setNotes]=useState(false),[ready,setReady]=useState(false),[error,setError]=useState(false);
- const noteRef=useRef<HTMLDivElement>(null);
- useEffect(()=>{if(!root.current)return;const r=new Reveal(root.current,{width:1600,height:900,margin:.04,center:false,embedded:true,rtl:true,hash:true,hashOneBasedIndex:true,controls:false,progress:false,transition:'fade',view:print?'print':null,pdfSeparateFragments:false,pdfMaxPagesPerSlide:1,plugins:receiver?[]:[Notes],keyboard:{78:()=>setNotes(v=>!v),71:()=>r.toggleOverview()},keyboardCondition:e=>!((e.target as Element)?.closest('input,select,textarea'))&&!(e.key===' '&&(e.target as Element)?.closest('button,a'))});api.current=r;const sync=()=>setI(r.getIndices().h);r.on('slidechanged',sync);let live=true;r.initialize().then(async()=>{await document.fonts.ready;if(live){r.layout();sync();setReady(true)}}).catch(()=>setError(true));return()=>{live=false;r.destroy();api.current=null};},[]);
+ const noteRef=useRef<HTMLDivElement>(null), popup=useRef<Window|null>(null);
+ function openSpeaker(){
+  if(!api.current)return;
+  const url=speakerUrl(api.current.getIndices().h);
+  const win=window.open(url.href,'ai-energy-speaker','popup,width=1200,height=760');
+  if(win){popup.current=win;win.focus()}
+  else setNotes(true);
+ }
+ useEffect(()=>{
+  if(receiver||print)return;
+  const onMessage=(event:MessageEvent)=>{
+   const message=receiveSpeaker(event,popup.current,total);
+   const reveal=api.current;
+   if(!message||!reveal)return;
+   if(message.type==='ready')sendSpeaker(popup.current,{type:'slide',index:reveal.getIndices().h});
+   else if(message.index!==undefined&&message.index!==reveal.getIndices().h)reveal.slide(message.index);
+  };
+  window.addEventListener('message',onMessage);
+  return ()=>window.removeEventListener('message',onMessage);
+ },[]);
+ useEffect(()=>{if(!root.current)return;const r=new Reveal(root.current,{width:1600,height:900,margin:.04,center:false,embedded:true,rtl:true,hash:true,hashOneBasedIndex:true,controls:false,progress:false,transition:'fade',view:print?'print':null,pdfSeparateFragments:false,pdfMaxPagesPerSlide:1,keyboard:receiver||print?false:{78:()=>setNotes(v=>!v),71:()=>r.toggleOverview(),83:openSpeaker},keyboardCondition:e=>!((e.target as Element)?.closest('input,select,textarea'))&&!(e.key===' '&&(e.target as Element)?.closest('button,a'))});api.current=r;const sync=()=>{const index=r.getIndices().h;setI(index);sendSpeaker(popup.current,{type:'slide',index})};r.on('slidechanged',sync);let live=true;r.initialize().then(async()=>{await document.fonts.ready;if(live){r.layout();sync();setReady(true)}}).catch(()=>setError(true));return()=>{live=false;r.destroy();api.current=null};},[]);
  useEffect(()=>{const id=requestAnimationFrame(()=>api.current?.layout());return()=>cancelAnimationFrame(id)},[notes]);
  useEffect(()=>{noteRef.current?.scrollTo(0,0)},[i]);
  return <main className={(notes?'with-notes ':'')+(print?'print-mode ':'')+(receiver?'receiver':'')}>
- {!print&&!receiver&&<header className="topbar"><div className="brand"><Zap size={22}/> انرژی هوش مصنوعی <span>ارائهٔ دانشگاهی</span></div><nav aria-label="کنترل ارائه"><select className="route" aria-label="مسیر ارائه" value={short?"quick":"full"} onChange={e=>switchRoute(e.target.value==="quick")}><option value="full">مسیر کامل · {fa(makeDeck(baseDeck,false).length+1)} اسلاید</option><option value="quick">مسیر کوتاه · ۲۰ دقیقه</option></select><button title="نمای کلی (G)" aria-label="نمای کلی" onClick={()=>api.current?.toggleOverview()}><Grid2X2 size={19}/></button><button aria-pressed={notes} title="یادداشت‌ها (N)" onClick={()=>setNotes(!notes)}><NotebookPen size={19}/><span>یادداشت</span></button><button title="نمای سخنران (S)" disabled={!ready} onClick={()=>{const p=api.current?.getPlugin('notes') as {open?:()=>void}|undefined;p?.open?.()}}>نمای سخنران</button><button title="منابع" aria-label="منابع" onClick={()=>api.current?.slide(sourcesIndex)}><BookOpen size={19}/></button><button title="تمام‌صفحه" aria-label="تمام‌صفحه" onClick={()=>document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen?.()}><Maximize size={19}/></button></nav><div className="step"><button title="اسلاید قبلی" aria-label="اسلاید قبلی" disabled={!i} onClick={()=>api.current?.prev()}><ArrowRight size={19}/></button><span>{fa(i+1)} / {fa(total)}</span><button title="اسلاید بعدی" aria-label="اسلاید بعدی" disabled={i===total-1} onClick={()=>api.current?.next()}><ArrowLeft size={19}/></button></div></header>}
+ {!print&&!receiver&&<header className="topbar"><div className="brand"><Zap size={22}/> انرژی هوش مصنوعی <span>ارائهٔ دانشگاهی</span></div><nav aria-label="کنترل ارائه"><select className="route" aria-label="مسیر ارائه" value={short?"quick":"full"} onChange={e=>switchRoute(e.target.value==="quick")}><option value="full">مسیر کامل · {fa(makeDeck(baseDeck,false).length+1)} اسلاید</option><option value="quick">مسیر کوتاه · ۲۰ دقیقه</option></select><button title="نمای کلی (G)" aria-label="نمای کلی" onClick={()=>api.current?.toggleOverview()}><Grid2X2 size={19}/></button><button aria-pressed={notes} title="یادداشت‌ها (N)" onClick={()=>setNotes(!notes)}><NotebookPen size={19}/><span>یادداشت</span></button><button title="نمای سخنران (S)" disabled={!ready} onClick={openSpeaker}>نمای سخنران</button><button title="منابع" aria-label="منابع" onClick={()=>api.current?.slide(sourcesIndex)}><BookOpen size={19}/></button><button title="تمام‌صفحه" aria-label="تمام‌صفحه" onClick={()=>document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen?.()}><Maximize size={19}/></button></nav><div className="step"><button title="اسلاید قبلی" aria-label="اسلاید قبلی" disabled={!i} onClick={()=>api.current?.prev()}><ArrowRight size={19}/></button><span>{fa(i+1)} / {fa(total)}</span><button title="اسلاید بعدی" aria-label="اسلاید بعدی" disabled={i===total-1} onClick={()=>api.current?.next()}><ArrowLeft size={19}/></button></div></header>}
  <div className="stage"><div className="reveal" ref={root}><div className="slides">{deck.map((s,j)=>{
  return <section className="deck-slide dark" key={s.id} data-timing={s.sec}><div className="frame" dir="rtl">
  {j===0?<div className="cover"><div className="cover-copy"><h1>{s.title}<br/><em>و راهکارهای محاسبات سبز</em></h1><p className="english" dir="ltr">Energy Consumption of Artificial Intelligence<br/>and Green Computing Solutions</p><div className="author">{(s.rows as string[]).slice(2).map(name=><b key={name}>{name}</b>)}</div><p className="cover-instructor"><span>استاد:</span> دکتر مهدی خزاعی پور</p></div><div className="cover-mark" aria-hidden="true"><Zap size={265} strokeWidth={.9}/><span dir="ltr">kWh</span></div></div>:<><h1>{s.title}</h1><div className="body"><Content i={j}/></div></>}
  <footer className="slide-meta">{j!==0&&s.mode!=='github'&&s.src.length>0&&<a href={s.src[0]} target="_blank" rel="noreferrer">منبع ↗</a>}<span className="slide-index" aria-label={'اسلاید '+fa(j+1)+' از '+fa(total)}>{fa(j+1)} از {fa(total)}</span></footer>
- </div><aside className="notes"><style>{`@font-face{font-family:Vazirmatn;src:url('${location.origin}/fonts/Vazirmatn-Variable.woff2') format('woff2');font-weight:100 900}`+speakerLayoutCss}</style><SpeakerText i={j}/></aside></section>
+ </div></section>
  })}</div></div>{!ready&&!print&&<div className="loader">{error?'بارگذاری انجام نشد؛ صفحه را تازه کن.':'در حال آماده‌سازی اسلایدها…'}</div>}</div>
  {notes&&!print&&!receiver&&<aside className="note-panel" ref={noteRef}><button title="بستن یادداشت" aria-label="بستن یادداشت" onClick={()=>setNotes(false)}><X size={22}/></button><p className="eyebrow">یادداشت ارائه‌دهنده · اسلاید {fa(i+1)}</p><SpeakerText i={i}/></aside>}
  </main>;
 }
-createRoot(document.getElementById('root')!).render(<App/>);
+createRoot(document.getElementById('root')!).render(speaker?<SpeakerWindow total={total} renderNotes={i=><SpeakerText i={i}/>}/>:<App/>);

@@ -19,7 +19,7 @@ main{position:fixed;inset:0;background:var(--page)}.topbar{position:absolute;ins
 .interactive label{display:block;font-size:26px;margin:18px 0}.interactive input{display:block;accent-color:var(--lime);width:96%;margin-top:10px}.calc{display:flex;flex-wrap:wrap;align-items:baseline;gap:15px;margin-top:25px!important}.calc strong{font-size:49px;color:var(--lime)}.calc span{font-size:25px}
 .closing>p{font-size:35px;line-height:1.6}.closing .primary{font-size:25px;background:var(--lime);color:#172d24;border:0;border-radius:9px;padding:10px 22px;margin:20px 0}.closing .answer{font-size:26px}
 .sources-list a{display:grid;grid-template-columns:350px 1fr;gap:25px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line);text-decoration:none;font-size:22px}.sources-list a b{display:flex;align-items:center;gap:8px;font-size:21px;text-align:left;justify-self:end}.sources-list a:hover{text-decoration:underline}
-.loader{position:absolute;inset:0;display:grid;place-items:center;background:var(--page);color:var(--lime)}.notes{display:none!important}
+.loader{position:absolute;inset:0;display:grid;place-items:center;background:var(--page);color:var(--lime)}
 .note-panel{position:absolute;top:62px;right:0;bottom:0;width:70%;padding:26px 40px;overflow:auto;background:var(--surface);border-left:1px solid var(--line);color:var(--text);z-index:2}.note-panel>button{float:left;border:0;background:transparent;color:inherit}
 @media(max-width:760px){.topbar{padding:0 8px;gap:6px}.brand span,.topbar nav button span{display:none}.brand{font-size:12px}.topbar nav,.step{gap:4px}.topbar button{padding:6px;font-size:11px}.note-panel{padding:15px}.note-panel .presenter-script{font-size:17px!important}}
 .print-mode{position:static}.print-mode .stage{position:static}
@@ -45,6 +45,9 @@ main{position:fixed;inset:0;background:var(--page)}.topbar{position:absolute;ins
 .closing-summary{gap:56px;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
 .closing-summary .rows{padding-inline-start:34px;border-inline-start:1px solid var(--line)}
 .sources-list a:last-child{border-bottom:0}
+.closing-repo-copy>.eyebrow{font-size:24px;margin-bottom:10px}
+.repo-button{display:inline-block;background:var(--lime);color:#172d24;border-radius:8px;padding:10px 20px;margin-top:25px;text-decoration:none;font-size:25px;font-weight:750}
 .repo-link{text-align:right;margin-top:16px}
+.repo-code figcaption{text-align:center;color:var(--muted);font-size:21px;margin-top:12px}
 
 .slide-index{margin-inline-start:auto;white-space:nowrap;font-size:21px;font-weight:650;font-variant-numeric:tabular-nums;color:var(--muted)}
